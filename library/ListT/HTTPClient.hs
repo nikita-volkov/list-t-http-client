@@ -12,9 +12,11 @@ type Stream =
   ListT IO ByteString
 
 
-requestBody :: HC.Manager -> HC.Request -> IO Stream
-requestBody manager request =
-  HC.withResponse request manager $ \response -> return $ bodyReader $ HC.responseBody response
+requestBody :: (MonadReader HC.Manager m, MonadIO m) => HC.Request -> m Stream
+requestBody request =
+  do
+    manager <- ask
+    liftIO $ HC.withResponse request manager $ \response -> return $ bodyReader $ HC.responseBody response
 
 bodyReader :: HC.BodyReader -> Stream
 bodyReader io =
