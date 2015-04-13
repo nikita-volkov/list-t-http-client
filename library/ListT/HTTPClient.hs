@@ -8,20 +8,18 @@ import qualified Network.HTTP.Client as HC
 import qualified Data.ByteString as BS
 
 
-type Stream =
-  ListT IO ByteString
-
-
-requestBody :: (MonadReader HC.Manager m, MonadIO m) => HC.Request -> m Stream
+requestBody :: (MonadReader HC.Manager m, MonadIO m, 
+                MonadCons m', MonadIO m') => 
+               HC.Request -> m (m' ByteString)
 requestBody request =
   do
     manager <- ask
     liftIO $ HC.withResponse request manager $ \response -> return $ bodyReader $ HC.responseBody response
 
-bodyReader :: HC.BodyReader -> Stream
+bodyReader :: (MonadCons m, MonadIO m) => HC.BodyReader -> m ByteString
 bodyReader io =
   fix $ \loop -> do
-    chunk <- lift io
+    chunk <- liftIO io
     if BS.null chunk
-      then empty
+      then mzero
       else cons chunk loop
