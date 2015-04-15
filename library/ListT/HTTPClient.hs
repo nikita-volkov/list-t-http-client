@@ -10,8 +10,7 @@ import qualified Data.ByteString as B
 
 withResponse :: HC.Request -> HC.Manager -> (HC.Response (ListT IO ByteString) -> IO a) -> IO a
 withResponse request manager handler = 
-  HC.withResponse request manager $ \response -> 
-  handler $ response { HC.responseBody = bodyReader (HC.responseBody response) }
+  HC.withResponse request manager $ handler . fmap bodyReader
 
 bodyReader :: HC.BodyReader -> ListT IO ByteString
 bodyReader io =
