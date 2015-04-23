@@ -1,9 +1,9 @@
 name:
   list-t-http-client
 version:
-  0.1.0
+  0.1.0.1
 synopsis:
-description:
+  A streaming HTTP client
 category:
   Streaming, HTTP
 homepage:
